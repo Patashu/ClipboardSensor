@@ -45,7 +45,15 @@ namespace ClipboardSensor
             }
             else
             {
-                textBox1.Text = Clipboard.GetDataObject().GetFormats().Aggregate((x, y) => x + ", " + y);
+                var formats = Clipboard.GetDataObject().GetFormats();
+                if (!formats.Any())
+                {
+                    bumpwav.Play();
+                }
+                else
+                {
+                    textBox1.Text = formats.Aggregate((x, y) => x + ", " + y);
+                }
             }
 
             if (textBox1.Text.Length > 0)
