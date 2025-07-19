@@ -1,0 +1,16 @@
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Debug\net8.0-windows\ClipboardSensor.exe
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Debug\net8.0-windows\ClipboardSensor.deps.json
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Debug\net8.0-windows\ClipboardSensor.runtimeconfig.json
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Debug\net8.0-windows\ClipboardSensor.dll
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Debug\net8.0-windows\ClipboardSensor.pdb
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.Form1.resources
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.csproj.GenerateResource.cache
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.GeneratedMSBuildEditorConfig.editorconfig
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.AssemblyInfoInputs.cache
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.AssemblyInfo.cs
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.csproj.CoreCompileInputs.cache
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.dll
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\refint\ClipboardSensor.dll
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.pdb
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ClipboardSensor.genruntimeconfig.cache
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Debug\net8.0-windows\ref\ClipboardSensor.dll
