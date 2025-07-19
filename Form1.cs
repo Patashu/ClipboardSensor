@@ -14,10 +14,11 @@ namespace ClipboardSensor
 
         public Form1()
         {
+            this.Name = "ClipboardSensor";
             InitializeComponent();
             this.Shown += (o, e) =>
             {
-               var _ClipboardViewerNext = SetClipboardViewer(this.Handle);
+                var _ClipboardViewerNext = SetClipboardViewer(this.Handle);
             };
         }
 
@@ -35,29 +36,36 @@ namespace ClipboardSensor
         void HandleClipboard()
         {
             textBox1.Text = "";
+            var pureText = false;
             if (Clipboard.ContainsText())
             {
                 textBox1.Text = Clipboard.GetText();
-                if (textBox1.Text.Length > 0)
+                pureText = true;
+
+            }
+            else
+            {
+                textBox1.Text = Clipboard.GetDataObject().GetFormats().Aggregate((x, y) => x + ", " + y);
+            }
+
+            if (textBox1.Text.Length > 0)
+            {
+                if (textBox1.Text.Contains("Chromium internal source RFH token, Chromium internal source URL"))
+                {
+                    bumpwav.Play();
+                }
+                else if (pureText)
                 {
                     switchwav.Play();
                 }
                 else
                 {
-                    bumpwav.Play();
+                    switch2wav.Play();
                 }
             }
             else
             {
-                textBox1.Text = Clipboard.GetDataObject().GetFormats().Aggregate((x, y) => x + ", " + y);
-                if (textBox1.Text.Length > 0)
-                {
-                    switch2wav.Play();
-                }
-                else
-                {
-                    bumpwav.Play();
-                }
+                bumpwav.Play();
             }
         }
     }
