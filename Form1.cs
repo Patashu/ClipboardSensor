@@ -50,7 +50,7 @@ namespace ClipboardSensor
 
             if (textBox1.Text.Length > 0)
             {
-                if (textBox1.Text.Contains("Chromium internal source RFH token, Chromium internal source URL"))
+                if (textBox1.Text == "Chromium internal source RFH token, Chromium internal source URL")
                 {
                     bumpwav.Play();
                 }
