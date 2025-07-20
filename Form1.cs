@@ -1,5 +1,6 @@
 using System.Resources;
 using System.Runtime.InteropServices;
+using ClipboardSensor.Properties;
 
 namespace ClipboardSensor
 {
@@ -8,9 +9,9 @@ namespace ClipboardSensor
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
 
-        System.Media.SoundPlayer switchwav = new System.Media.SoundPlayer("E:\\Users\\tim\\Documents\\Godot Projects\\ClipboardSensor\\switch.wav");
-        System.Media.SoundPlayer switch2wav = new System.Media.SoundPlayer("E:\\Users\\tim\\Documents\\Godot Projects\\ClipboardSensor\\switch2.wav");
-        System.Media.SoundPlayer bumpwav = new System.Media.SoundPlayer("E:\\Users\\tim\\Documents\\Godot Projects\\ClipboardSensor\\bump.wav");
+        System.Media.SoundPlayer switchwav = new System.Media.SoundPlayer();
+        System.Media.SoundPlayer switch2wav = new System.Media.SoundPlayer();
+        System.Media.SoundPlayer bumpwav = new System.Media.SoundPlayer();
 
         public Form1()
         {
@@ -20,6 +21,11 @@ namespace ClipboardSensor
             {
                 var _ClipboardViewerNext = SetClipboardViewer(this.Handle);
             };
+            ResourceManager rm = Resources.ResourceManager;
+            //not going to fix the potential NREs here because if it does NRE it is correct to crash~
+            switchwav.Stream = new MemoryStream((byte[])rm.GetObject("switch"));
+            switch2wav.Stream = new MemoryStream((byte[])rm.GetObject("switch2"));
+            bumpwav.Stream = new MemoryStream((byte[])rm.GetObject("bump"));
         }
 
         protected override void WndProc(ref Message m)
@@ -45,7 +51,8 @@ namespace ClipboardSensor
             }
             else
             {
-                var formats = Clipboard.GetDataObject().GetFormats();
+                
+                var formats = Clipboard.GetDataObject()?.GetFormats() ?? Array.Empty<string>();
                 if (!formats.Any())
                 {
                     bumpwav.Play();
