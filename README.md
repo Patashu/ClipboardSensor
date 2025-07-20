@@ -1,4 +1,4 @@
-ClipboardSensor is an application that beeps at you when copying to clipboard succeeds or fails.
+ClipboardSensor is a Windows application that beeps at you when copying to clipboard succeeds or fails.
 
 Specifically it plays one of the following sound effects:
 
