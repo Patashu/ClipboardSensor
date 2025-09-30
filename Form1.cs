@@ -8,6 +8,93 @@ namespace ClipboardSensor
 {
     public partial class ClipboardSensorForm : Form
     {
+
+        #region Hotkeys
+
+        // https://stackoverflow.com/questions/3568513/how-to-create-keyboard-shortcut-in-windows-that-call-function-in-my-app/3569097#3569097
+
+        public class HotKeyManager
+        {
+            public static event EventHandler<HotKeyEventArgs> HotKeyPressed;
+
+            public static int RegisterHotKey(Keys key, KeyModifiers modifiers)
+            {
+                int id = System.Threading.Interlocked.Increment(ref _id);
+                RegisterHotKey(_wnd.Handle, id, (uint)modifiers, (uint)key);
+                return id;
+            }
+
+            public static bool UnregisterHotKey(int id)
+            {
+                return UnregisterHotKey(_wnd.Handle, id);
+            }
+
+            protected static void OnHotKeyPressed(HotKeyEventArgs e)
+            {
+                if (HotKeyManager.HotKeyPressed != null)
+                {
+                    HotKeyManager.HotKeyPressed(null, e);
+                }
+            }
+
+            private static MessageWindow _wnd = new MessageWindow();
+
+            private class MessageWindow : Form
+            {
+                protected override void WndProc(ref Message m)
+                {
+                    if (m.Msg == WM_HOTKEY)
+                    {
+                        HotKeyEventArgs e = new HotKeyEventArgs(m.LParam);
+                        HotKeyManager.OnHotKeyPressed(e);
+                    }
+
+                    base.WndProc(ref m);
+                }
+
+                private const int WM_HOTKEY = 0x312;
+            }
+
+            [DllImport("user32")]
+            private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+
+            [DllImport("user32")]
+            private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+            private static int _id = 0;
+        }
+
+        public class HotKeyEventArgs : EventArgs
+        {
+            public readonly Keys Key;
+            public readonly KeyModifiers Modifiers;
+
+            public HotKeyEventArgs(Keys key, KeyModifiers modifiers)
+            {
+                this.Key = key;
+                this.Modifiers = modifiers;
+            }
+
+            public HotKeyEventArgs(IntPtr hotKeyParam)
+            {
+                uint param = (uint)hotKeyParam.ToInt64();
+                Key = (Keys)((param & 0xffff0000) >> 16);
+                Modifiers = (KeyModifiers)(param & 0x0000ffff);
+            }
+        }
+
+        [Flags]
+        public enum KeyModifiers
+        {
+            Alt = 1,
+            Control = 2,
+            Shift = 4,
+            Windows = 8,
+            NoRepeat = 0x4000
+        }
+
+        #endregion
+
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
 
@@ -33,6 +120,9 @@ namespace ClipboardSensor
             this.Shown += (o, e) =>
             {
                 var _ClipboardViewerNext = SetClipboardViewer(this.Handle);
+                HotKeyManager.RegisterHotKey(Keys.Z, KeyModifiers.Alt);
+                HotKeyManager.RegisterHotKey(Keys.X, KeyModifiers.Alt);
+                HotKeyManager.HotKeyPressed += OnHotKeyPressed;
             };
             ResourceManager rm = Resources.ResourceManager;
             //not going to fix the potential NREs here because if it does NRE it is correct to crash~
@@ -55,6 +145,18 @@ namespace ClipboardSensor
                     break;
             }
             base.WndProc(ref m);
+        }
+
+        void OnHotKeyPressed(object sender, HotKeyEventArgs e)
+        {
+            if (e.Key == Keys.Z)
+            {
+                UndoButton_Click(null, null);
+            }
+            else if (e.Key == Keys.X)
+            {
+                RedoButton_Click(null, null);
+            }
         }
 
         void ShrinkHistory()
