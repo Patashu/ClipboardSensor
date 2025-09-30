@@ -132,7 +132,6 @@ namespace ClipboardSensor
             undowav.Stream = (Stream)rm.GetObject("undo");
             redowav.Stream = (Stream)rm.GetObject("redo");
             DebounceNumericBox.Value = debounceMs;
-            ProgrammaticallySetMaximumPosition(maxHistorySize);
             time.Start();
         }
 
@@ -179,6 +178,7 @@ namespace ClipboardSensor
                     history.RemoveAt(history.Count - 1);
                 }
             }
+            ProgrammaticallySetMaximumPositionBox(history.Count);
         }
 
         void PlayIfNotMuted(SoundPlayer speaker, bool userInitiated = false)
@@ -300,11 +300,13 @@ namespace ClipboardSensor
             programmaticallySettingCurrentPositionBoxValue = false;
         }
 
-        void ProgrammaticallySetMaximumPosition(int value)
+        void ProgrammaticallySetMaximumPositionBox(int value)
         {
-            programmaticallySettingMaximumPositionBoxValue = true;
+            if (userFocusingMaximumPositionBox)
+            {
+                return;
+            }
             MaximumPositionBox.Value = value;
-            programmaticallySettingMaximumPositionBoxValue = false;
         }
 
         void GotoCurrentPosition(int value)
@@ -368,12 +370,12 @@ namespace ClipboardSensor
             }
         }
 
-        bool programmaticallySettingMaximumPositionBoxValue = false;
         private void MaximumPositionBox_ValueChanged(object sender, EventArgs e)
         {
-            if (!programmaticallySettingMaximumPositionBoxValue)
+            if (userFocusingMaximumPositionBox)
             {
-                //TODO
+                maxHistorySize = (int)MaximumPositionBox.Value;
+                ShrinkHistory();
             }
         }
 
@@ -381,14 +383,15 @@ namespace ClipboardSensor
 
         private void MaximumPositionBox_GotFocus(object sender, EventArgs e)
         {
+            ProgrammaticallySetMaximumPositionBox(maxHistorySize);
             userFocusingMaximumPositionBox = true;
-            //TODO
         }
 
         private void MaximumPositionBox_LostFocus(object sender, EventArgs e)
         {
-            userFocusingMaximumPositionBox = false;
-            //TODO
+            _ = MaximumPositionBox.Value; //forces a parse which makes it realize the value changed
+            userFocusingMaximumPositionBox = false; //NOW we can say we're not looking at it anymore
+            ProgrammaticallySetMaximumPositionBox(history.Count);
         }
 
         private void UndoButton_Click(object sender, EventArgs e)
