@@ -3,7 +3,6 @@ E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Release\net8.0-windows
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Release\net8.0-windows\ClipboardSensor.runtimeconfig.json
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Release\net8.0-windows\ClipboardSensor.dll
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\bin\Release\net8.0-windows\ClipboardSensor.pdb
-E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ClipboardSensor.Form1.resources
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ClipboardSensor.Properties.Resources.resources
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ClipboardSensor.csproj.GenerateResource.cache
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ClipboardSensor.GeneratedMSBuildEditorConfig.editorconfig
@@ -16,3 +15,4 @@ E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ClipboardSensor.pdb
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ClipboardSensor.genruntimeconfig.cache
 E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ref\ClipboardSensor.dll
+E:\Users\tim\Documents\Godot Projects\ClipboardSensor\obj\Release\net8.0-windows\ClipboardSensor.ClipboardSensorForm.resources

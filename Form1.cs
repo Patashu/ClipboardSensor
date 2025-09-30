@@ -4,7 +4,7 @@ using ClipboardSensor.Properties;
 
 namespace ClipboardSensor
 {
-    public partial class Form1 : Form
+    public partial class ClipboardSensorForm : Form
     {
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
         static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
@@ -12,8 +12,9 @@ namespace ClipboardSensor
         System.Media.SoundPlayer switchwav = new System.Media.SoundPlayer();
         System.Media.SoundPlayer switch2wav = new System.Media.SoundPlayer();
         System.Media.SoundPlayer bumpwav = new System.Media.SoundPlayer();
-
-        public Form1()
+        System.Media.SoundPlayer undowav = new System.Media.SoundPlayer();
+        System.Media.SoundPlayer redowav = new System.Media.SoundPlayer();
+        public ClipboardSensorForm()
         {
             this.Name = "ClipboardSensor";
             InitializeComponent();
@@ -23,9 +24,11 @@ namespace ClipboardSensor
             };
             ResourceManager rm = Resources.ResourceManager;
             //not going to fix the potential NREs here because if it does NRE it is correct to crash~
-            switchwav.Stream = new MemoryStream((byte[])rm.GetObject("switch"));
-            switch2wav.Stream = new MemoryStream((byte[])rm.GetObject("switch2"));
-            bumpwav.Stream = new MemoryStream((byte[])rm.GetObject("bump"));
+            switchwav.Stream = (Stream)rm.GetObject("switch");
+            switch2wav.Stream = (Stream)rm.GetObject("switch2");
+            bumpwav.Stream = (Stream)rm.GetObject("bump");
+            undowav.Stream = (Stream)rm.GetObject("undo");
+            redowav.Stream = (Stream)rm.GetObject("redo");
         }
 
         protected override void WndProc(ref Message m)
@@ -41,17 +44,17 @@ namespace ClipboardSensor
 
         void HandleClipboard()
         {
-            textBox1.Text = "";
+            CurrentTextBox.Text = "";
             var pureText = false;
             if (Clipboard.ContainsText())
             {
-                textBox1.Text = Clipboard.GetText();
+                CurrentTextBox.Text = Clipboard.GetText();
                 pureText = true;
 
             }
             else
             {
-                
+
                 var formats = Clipboard.GetDataObject()?.GetFormats() ?? Array.Empty<string>();
                 if (!formats.Any())
                 {
@@ -59,13 +62,13 @@ namespace ClipboardSensor
                 }
                 else
                 {
-                    textBox1.Text = formats.Aggregate((x, y) => x + ", " + y);
+                    CurrentTextBox.Text = formats.Aggregate((x, y) => x + ", " + y);
                 }
             }
 
-            if (textBox1.Text.Length > 0)
+            if (CurrentTextBox.Text.Length > 0)
             {
-                if (textBox1.Text == "Chromium internal source RFH token, Chromium internal source URL")
+                if (CurrentTextBox.Text == "Chromium internal source RFH token, Chromium internal source URL")
                 {
                     bumpwav.Play();
                 }
@@ -82,6 +85,41 @@ namespace ClipboardSensor
             {
                 bumpwav.Play();
             }
+        }
+
+        private void CurrentPositionBox_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MaximumPositionBox_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MaximumPositionBox_GotFocus(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MaximumPositionBox_LostFocus(object sender, EventArgs e)
+        {
+
+        }
+
+        private void UndoButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void RedoButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DebounceNumericBox_ValueChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
