@@ -103,6 +103,8 @@ namespace ClipboardSensor
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool RemoveClipboardFormatListener(IntPtr hwnd);
+        [DllImport("ole32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        static extern int OleFlushClipboard();
 
         System.Media.SoundPlayer switchwav = new System.Media.SoundPlayer();
         System.Media.SoundPlayer switch2wav = new System.Media.SoundPlayer();
@@ -234,7 +236,7 @@ namespace ClipboardSensor
                 if (formats.Contains("Text"))
                 {
                    result = (string)dataObject.GetData("Text");
-                    containsText = true;
+                   containsText = true;
                 }
                 else
                 {
@@ -268,9 +270,36 @@ namespace ClipboardSensor
         DataObject Clone(IDataObject other)
         {
             var clone = new DataObject();
-            foreach (var format in other.GetFormats())
+            var formats = other.GetFormats();
+            foreach (var format in formats)
             {
-                clone.SetData(format, other.GetData(format));
+                //anti-flakiness here too...
+                for (var i = 0; i < 4; ++i)
+                {
+                    try
+                    {
+                        var data = other.GetData(format);
+                        if (data == null || data is string stringy && String.IsNullOrEmpty(stringy))
+                        {
+                        }
+                        else
+                        {
+                            clone.SetData(format, other.GetData(format));
+                            var check = clone.GetData(format);
+                            if (check == null || check is string stringy2 && String.IsNullOrEmpty(stringy2))
+                            {
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    catch (ExternalException)
+                    {
+                    }
+                    Thread.Sleep((int)Math.Pow(10, i - 1)); //0, 1, 10, 100
+                }
             }
             return clone;
         }
@@ -317,6 +346,7 @@ namespace ClipboardSensor
                     {
                     }
                     Thread.Sleep((int)Math.Pow(10, i-1)); //0, 1, 10, 100
+                    Application.DoEvents(); //this is scary but testing to see if it at least theoretically works
                 }
                 //this still can fail even after multiple seconds of retrying every 0.1 seconds.
                 //given it can have an arbitrarily unbound length of failure, I can't just make the user wait.
@@ -379,6 +409,12 @@ namespace ClipboardSensor
 
         void GotoCurrentPosition(int value)
         {
+            //anti-reentrancy
+            if (settingDataObject)
+            {
+                return;
+            }
+
             if (value == currentPosition)
             {
                 PlayIfNotMuted(bumpwav, true);
