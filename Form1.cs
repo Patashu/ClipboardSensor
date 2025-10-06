@@ -95,8 +95,13 @@ namespace ClipboardSensor
 
         #endregion
 
-        [DllImport("User32.dll", CharSet = CharSet.Auto)]
-        static extern IntPtr SetClipboardViewer(IntPtr hWndNewViewer);
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool AddClipboardFormatListener(IntPtr hwnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool RemoveClipboardFormatListener(IntPtr hwnd);
 
         System.Media.SoundPlayer switchwav = new System.Media.SoundPlayer();
         System.Media.SoundPlayer switch2wav = new System.Media.SoundPlayer();
@@ -112,16 +117,17 @@ namespace ClipboardSensor
         int currentPosition = -1; //zero indexed
         int maxHistorySize = 32; //inclusive
         const int muteAfterWriteMs = 100; //in milliseconds
+        List<int> registeredHotkeys = new List<int>();
         
         public ClipboardSensorForm()
         {
             this.Name = "ClipboardSensor";
             InitializeComponent();
+            this.Disposed += OnDisposed;
             this.Shown += (o, e) =>
             {
-                var _ClipboardViewerNext = SetClipboardViewer(this.Handle);
-                HotKeyManager.RegisterHotKey(Keys.Z, KeyModifiers.Alt);
-                HotKeyManager.RegisterHotKey(Keys.X, KeyModifiers.Alt);
+                AddClipboardFormatListener(this.Handle);
+                RegisterHotkeys();
                 HotKeyManager.HotKeyPressed += OnHotKeyPressed;
             };
             ResourceManager rm = Resources.ResourceManager;
@@ -135,11 +141,37 @@ namespace ClipboardSensor
             time.Start();
         }
 
+        void RegisterHotkeys()
+        {
+            if (registeredHotkeys.Any())
+            {
+                return;
+            }
+            registeredHotkeys.Add(HotKeyManager.RegisterHotKey(Keys.Z, KeyModifiers.Alt));
+            registeredHotkeys.Add(HotKeyManager.RegisterHotKey(Keys.X, KeyModifiers.Alt));
+        }
+
+        void UnregisterHotkeys()
+        {
+            foreach (var id in registeredHotkeys)
+            {
+                HotKeyManager.UnregisterHotKey(id);
+            }
+            registeredHotkeys.Clear();
+        }
+
+        void OnDisposed(object sender, EventArgs e)
+        {
+            UnregisterHotkeys();
+            RemoveClipboardFormatListener(this.Handle);
+        }
+
+        const int WM_CLIPBOARDUPDATE = 0x031D;
         protected override void WndProc(ref Message m)
         {
             switch (m.Msg)
             {
-                case 0x0308: //WM_DRAWCLIPBOARD
+                case WM_CLIPBOARDUPDATE:
                     HandleClipboard();
                     break;
             }
@@ -217,6 +249,7 @@ namespace ClipboardSensor
             {
                 clone.SetData(format, other.GetData(format));
                 //do I also have to do text or is that a kind of 'data'?
+                //seems I do not~
             }
             return clone;
         }
