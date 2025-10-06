@@ -1,4 +1,4 @@
-<img width="447" height="160" alt="clipboard sensor v1 1" src="https://github.com/user-attachments/assets/ad8cb5ca-182f-4293-a5dc-5f18cf8355de" />
+<img width="447" height="160" alt="image" src="https://github.com/user-attachments/assets/442287b0-59f3-423c-8f05-81457c80aa42" />
 
 ClipboardSensor is a Windows application that beeps at you when copying to clipboard succeeds or fails.
 
@@ -22,6 +22,12 @@ ClipboardSensor v1.1 additionally adds a clipboard history with the following fu
 
 *  Debounce (in milliseconds) is how long two consecutive clipboard changes have to be apart before they constitute two different history entries. Set to -1 to have it always succeed. (Some copies (like the URL bar in Chrome) make one or more copies in quick succession.)
 
-I wrote this application because Discord has a race condition where it fails to copy to clipboard sometimes. (For example, if you edit a message and quickly hit Ctrl+A Ctrl+C your clipboard will be emptied, but if you pause slightly first it works.) Now I always know for sure if a clipboard copy succeeded or failed!
+ClipboardSensor v1.2 adds the following functions:
+
+* Alt+C (Trim Text) takes the current clipboard history entry, removes all data formats except UnicodeText (or if that's absent, Text), trims the resulting string and updates the clipboard history and Windows clipboard with the new value. It trims non-text AND trims text! A double trim!
+
+* 'Hook Hotkeys' lets you disable the hotkeys if you need Alt+foo to work properly in another program.
+
+I wrote this application because Discord has a race condition where it fails to copy to clipboard sometimes. (For example, if you edit a message and quickly hit Ctrl+A Ctrl+C your clipboard will be emptied, but if you pause slightly first it works.) (I suspect this is a Chromium bug and not a Discord bug.) Now I always know for sure if a clipboard copy succeeded or failed!
 
 I wrote this for personal use, but you can use it if you want (see Releases).
