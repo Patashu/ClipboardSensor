@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ClipboardSensor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b3e23830056eee86f647e9c8e68522fa7fc34a6")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+08b89eb7e9db5c10cb798e29147c2cafd60bf8c9")]
 [assembly: System.Reflection.AssemblyProductAttribute("ClipboardSensor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ClipboardSensor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

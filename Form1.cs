@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.DirectoryServices;
 using System.Media;
 using System.Resources;
 using System.Runtime.InteropServices;
@@ -223,22 +224,44 @@ namespace ClipboardSensor
             speaker.Play();
         }
 
-        void HandleClipboardDueToUndoOrRedo(IDataObject dataObject)
+        void UpdateCurrentTextBoxFromDataObject(IDataObject dataObject, bool playSound)
         {
+            var result = "";
             var formats = dataObject.GetFormats();
+            var containsText = false;
             if (formats.Any())
             {
-                //TODO: text
                 if (formats.Contains("Text"))
                 {
-                    CurrentTextBox.Text = (string)dataObject.GetData("Text");
+                   result = (string)dataObject.GetData("Text");
+                    containsText = true;
                 }
                 else
                 {
-                    CurrentTextBox.Text = formats.Aggregate((x, y) => x + ", " + y);
+                    result = formats.Aggregate((x, y) => x + ", " + y);
                 }
             }
 
+            if (playSound)
+            {
+                if (String.IsNullOrEmpty(result))
+                {
+                    PlayIfNotMuted(bumpwav);
+                }
+                else if (result == "Chromium internal source RFH token, Chromium internal source URL")
+                {
+                    PlayIfNotMuted(bumpwav);
+                }
+                else if (containsText)
+                {
+                    PlayIfNotMuted(switchwav);
+                }
+                else
+                {
+                    PlayIfNotMuted(switch2wav);
+                }
+            }
+            CurrentTextBox.Text = result;
             lastRead = time.ElapsedMilliseconds;
         }
 
@@ -248,10 +271,64 @@ namespace ClipboardSensor
             foreach (var format in other.GetFormats())
             {
                 clone.SetData(format, other.GetData(format));
-                //do I also have to do text or is that a kind of 'data'?
-                //seems I do not~
             }
             return clone;
+        }
+
+        IDataObject? ClipboardGetDataObjectWrapper()
+        {
+            //has been seen to be flaky in practice, so try a few times
+            IDataObject? result = null;
+            for (var i = 0; i < 4; ++i)
+            {
+                try
+                {
+                    result = Clipboard.GetDataObject();
+                    if (result != null && result.GetFormats().Any())
+                    {
+                        break;
+                    }
+                }
+                catch (ExternalException)
+                {
+                }
+                Thread.Sleep((int)Math.Pow(10, i-1)); //0, 1, 10, 100
+            }
+            return result;
+        }
+
+        bool ClipboardSetDataObjectWrapper(IDataObject data)
+        {
+            //has been seen to be flaky in practice, so try a few times
+            try
+            {
+                //don't immediately think a new, external clipboard change came in
+                settingDataObject = true;
+                lastRead = time.ElapsedMilliseconds;
+                lastWrite = time.ElapsedMilliseconds;
+                for (var i = 0; i < 4; ++i)
+                {
+                    try
+                    {
+                        Clipboard.SetDataObject(data, true, 0, 0);
+                        return true;
+                    }
+                    catch (ExternalException)
+                    {
+                    }
+                    Thread.Sleep((int)Math.Pow(10, i-1)); //0, 1, 10, 100
+                }
+                //this still can fail even after multiple seconds of retrying every 0.1 seconds.
+                //given it can have an arbitrarily unbound length of failure, I can't just make the user wait.
+                //I'd rather beep than freeze up.
+                //(I wonder if there is any better way to do this that I don't know of, though...)
+                //(Like, how does winforms handle this?)
+                return false;
+            }
+            finally
+            {
+                settingDataObject = false;
+            }
         }
 
         void HandleClipboard()
@@ -262,7 +339,7 @@ namespace ClipboardSensor
                 return;
             }
 
-            var dataObject = Clipboard.GetDataObject();
+            var dataObject = ClipboardGetDataObjectWrapper();
             if (dataObject != null)
             {
                 var clone = Clone(dataObject);
@@ -279,50 +356,8 @@ namespace ClipboardSensor
                     //else, rewrite current entry
                     history[currentPosition] = clone;
                 }
+                UpdateCurrentTextBoxFromDataObject(clone, true);
             }
-
-            CurrentTextBox.Text = "";
-            var pureText = false;
-            if (Clipboard.ContainsText())
-            {
-                CurrentTextBox.Text = Clipboard.GetText();
-                pureText = true;
-
-            }
-            else
-            {
-                var formats = Clipboard.GetDataObject()?.GetFormats() ?? Array.Empty<string>();
-                if (!formats.Any())
-                {
-                    PlayIfNotMuted(bumpwav);
-                }
-                else
-                {
-                    CurrentTextBox.Text = formats.Aggregate((x, y) => x + ", " + y);
-                }
-            }
-
-            if (CurrentTextBox.Text.Length > 0)
-            {
-                if (CurrentTextBox.Text == "Chromium internal source RFH token, Chromium internal source URL")
-                {
-                    PlayIfNotMuted(bumpwav);
-                }
-                else if (pureText)
-                {
-                    PlayIfNotMuted(switchwav);
-                }
-                else
-                {
-                    PlayIfNotMuted(switch2wav);
-                }
-            }
-            else
-            {
-                PlayIfNotMuted(bumpwav);
-            }
-
-            lastRead = time.ElapsedMilliseconds;
         }
 
         void ProgrammaticallySetCurrentPosition(int value)
@@ -369,29 +404,20 @@ namespace ClipboardSensor
             {
                 PlayIfNotMuted(redowav, true);
             }
-            //have to do this right now in case it succeeds
-            lastRead = time.ElapsedMilliseconds;
-            lastWrite = time.ElapsedMilliseconds;
-            //some arbitrary retry amounts...
-            //throws ExternalException if it fails. if it fails I guess we just need to tell the user that.
-            try
+
+            if (ClipboardSetDataObjectWrapper(history[value]))
             {
-                settingDataObject = true;
-                Clipboard.SetDataObject(history[value]);
+                //hooray!
             }
-            catch (ExternalException)
+            else
             {
                 PlayIfNotMuted(bumpwav, true);
                 return;
             }
-            finally
-            {
-                settingDataObject = false;
-            }
             //now we know it succeeded so continue
             ProgrammaticallySetCurrentPosition(value);
             //crazy COM stack overflow if I just immediately try to read it for some reason, so we'll manually unpack it here
-            HandleClipboardDueToUndoOrRedo(history[currentPosition]);
+            UpdateCurrentTextBoxFromDataObject(history[currentPosition], false);
         }
 
         bool programmaticallySettingCurrentPositionBoxValue = false;
