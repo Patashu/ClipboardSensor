@@ -38,6 +38,8 @@
             label2 = new Label();
             DebounceNumericBox = new NumericUpDown();
             label3 = new Label();
+            TrimTextButton = new Button();
+            HotkeysCheckBox = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)CurrentPositionBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)MaximumPositionBox).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DebounceNumericBox).BeginInit();
@@ -46,12 +48,12 @@
             // CurrentTextBox
             // 
             CurrentTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            CurrentTextBox.Location = new Point(0, 31);
+            CurrentTextBox.Location = new Point(0, 60);
             CurrentTextBox.MaxLength = 65535;
             CurrentTextBox.Multiline = true;
             CurrentTextBox.Name = "CurrentTextBox";
             CurrentTextBox.ScrollBars = ScrollBars.Both;
-            CurrentTextBox.Size = new Size(445, 97);
+            CurrentTextBox.Size = new Size(445, 68);
             CurrentTextBox.TabIndex = 0;
             CurrentTextBox.WordWrap = false;
             // 
@@ -133,11 +135,36 @@
             label3.TabIndex = 8;
             label3.Text = "ms";
             // 
+            // TrimTextButton
+            // 
+            TrimTextButton.Location = new Point(2, 31);
+            TrimTextButton.Name = "TrimTextButton";
+            TrimTextButton.Size = new Size(110, 23);
+            TrimTextButton.TabIndex = 9;
+            TrimTextButton.Text = "Trim Text (Alt+C)";
+            TrimTextButton.UseVisualStyleBackColor = true;
+            TrimTextButton.Click += TrimTextButton_Click;
+            // 
+            // HotkeysCheckBox
+            // 
+            HotkeysCheckBox.AutoSize = true;
+            HotkeysCheckBox.Checked = true;
+            HotkeysCheckBox.CheckState = CheckState.Checked;
+            HotkeysCheckBox.Location = new Point(116, 35);
+            HotkeysCheckBox.Name = "HotkeysCheckBox";
+            HotkeysCheckBox.Size = new Size(101, 19);
+            HotkeysCheckBox.TabIndex = 10;
+            HotkeysCheckBox.Text = "Hook Hotkeys";
+            HotkeysCheckBox.UseVisualStyleBackColor = true;
+            HotkeysCheckBox.CheckedChanged += HotkeysCheckBox_CheckedChanged;
+            // 
             // ClipboardSensorForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(445, 128);
+            Controls.Add(HotkeysCheckBox);
+            Controls.Add(TrimTextButton);
             Controls.Add(label3);
             Controls.Add(DebounceNumericBox);
             Controls.Add(label2);
@@ -168,5 +195,7 @@
         private Label label2;
         private NumericUpDown DebounceNumericBox;
         private Label label3;
+        private Button TrimTextButton;
+        private CheckBox HotkeysCheckBox;
     }
 }

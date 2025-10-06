@@ -121,7 +121,7 @@ namespace ClipboardSensor
         int maxHistorySize = 32; //inclusive
         const int muteAfterWriteMs = 100; //in milliseconds
         List<int> registeredHotkeys = new List<int>();
-        
+
         public ClipboardSensorForm()
         {
             this.Name = "ClipboardSensor";
@@ -152,6 +152,7 @@ namespace ClipboardSensor
             }
             registeredHotkeys.Add(HotKeyManager.RegisterHotKey(Keys.Z, KeyModifiers.Alt));
             registeredHotkeys.Add(HotKeyManager.RegisterHotKey(Keys.X, KeyModifiers.Alt));
+            registeredHotkeys.Add(HotKeyManager.RegisterHotKey(Keys.C, KeyModifiers.Alt));
         }
 
         void UnregisterHotkeys()
@@ -185,11 +186,15 @@ namespace ClipboardSensor
         {
             if (e.Key == Keys.Z)
             {
-                UndoButton_Click(null, null);
+                UndoButton_Click(sender, e);
             }
             else if (e.Key == Keys.X)
             {
-                RedoButton_Click(null, null);
+                RedoButton_Click(sender, e);
+            }
+            else if (e.Key == Keys.C)
+            {
+                TrimTextButton_Click(sender, e);
             }
         }
 
@@ -233,10 +238,15 @@ namespace ClipboardSensor
             var containsText = false;
             if (formats.Any())
             {
-                if (formats.Contains("Text"))
+                if (formats.Contains("UnicodeText"))
                 {
-                   result = (string)dataObject.GetData("Text");
-                   containsText = true;
+                    result = (string)dataObject.GetData("UnicodeText");
+                    containsText = true;
+                }
+                else if (formats.Contains("Text"))
+                {
+                    result = (string)dataObject.GetData("Text");
+                    containsText = true;
                 }
                 else
                 {
@@ -321,7 +331,7 @@ namespace ClipboardSensor
                 catch (ExternalException)
                 {
                 }
-                Thread.Sleep((int)Math.Pow(10, i-1)); //0, 1, 10, 100
+                Thread.Sleep((int)Math.Pow(10, i - 1)); //0, 1, 10, 100
             }
             return result;
         }
@@ -345,7 +355,7 @@ namespace ClipboardSensor
                     catch (ExternalException)
                     {
                     }
-                    Thread.Sleep((int)Math.Pow(10, i-1)); //0, 1, 10, 100
+                    Thread.Sleep((int)Math.Pow(10, i - 1)); //0, 1, 10, 100
                     Application.DoEvents(); //this is scary but testing to see if it at least theoretically works
                 }
                 //this still can fail even after multiple seconds of retrying every 0.1 seconds.
@@ -502,6 +512,56 @@ namespace ClipboardSensor
         private void DebounceNumericBox_ValueChanged(object sender, EventArgs e)
         {
             debounceMs = (int)DebounceNumericBox.Value;
+        }
+
+        private void TrimTextButton_Click(object sender, EventArgs e)
+        {
+            if (currentPosition >= history.Count)
+            {
+                PlayIfNotMuted(bumpwav, true);
+                return;
+            }
+            var dataObject = history[currentPosition];
+            var formats = dataObject.GetFormats();
+            if (!formats.Contains("UnicodeText") && !formats.Contains("Text"))
+            {
+                PlayIfNotMuted(bumpwav, true);
+                return;
+            }
+            //shouldn't need anti-flakiness since we're in total control...
+            var text = (string?)(dataObject.GetData("UnicodeText") ?? dataObject.GetData("Text"));
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                PlayIfNotMuted(bumpwav, true);
+                return;
+            }
+            text = text.Trim();
+            var clone = new DataObject();
+            clone.SetText(text);
+            history[currentPosition] = clone;
+            if (ClipboardSetDataObjectWrapper(clone))
+            {
+                //hooray!
+            }
+            else
+            {
+                PlayIfNotMuted(bumpwav, true);
+                return;
+            }
+            UpdateCurrentTextBoxFromDataObject(clone, false);
+            PlayIfNotMuted(switchwav, true);
+        }
+
+        private void HotkeysCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (HotkeysCheckBox.Checked)
+            {
+                RegisterHotkeys();
+            }
+            else
+            {
+                UnregisterHotkeys();
+            }
         }
     }
 }
