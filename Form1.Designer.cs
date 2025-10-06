@@ -47,12 +47,13 @@
             // 
             CurrentTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CurrentTextBox.Location = new Point(0, 31);
-            CurrentTextBox.MaxLength = 1024;
+            CurrentTextBox.MaxLength = 65535;
             CurrentTextBox.Multiline = true;
             CurrentTextBox.Name = "CurrentTextBox";
-            CurrentTextBox.ScrollBars = ScrollBars.Vertical;
+            CurrentTextBox.ScrollBars = ScrollBars.Both;
             CurrentTextBox.Size = new Size(445, 97);
             CurrentTextBox.TabIndex = 0;
+            CurrentTextBox.WordWrap = false;
             // 
             // UndoButton
             // 
@@ -148,7 +149,7 @@
             Controls.Add(CurrentTextBox);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "ClipboardSensorForm";
-            Text = "ClipboardSensor v1.1";
+            Text = "ClipboardSensor v1.2";
             ((System.ComponentModel.ISupportInitialize)CurrentPositionBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)MaximumPositionBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)DebounceNumericBox).EndInit();
