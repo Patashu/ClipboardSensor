@@ -270,6 +270,10 @@ namespace ClipboardSensor
                 formats.Remove("UnicodeText");
                 formats.Insert(0, "UnicodeText");
             }
+            if (formats.Contains("EnterpriseDataProtectionId"))
+            {
+                formats.Remove("EnterpriseDataProtectionId");
+            }
             var beeped = false;
 
             foreach (var format in formats)
