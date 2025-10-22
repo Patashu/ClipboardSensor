@@ -231,22 +231,19 @@ namespace ClipboardSensor
             speaker.Play();
         }
 
-        void UpdateCurrentTextBoxFromDataObject(IDataObject dataObject, bool playSound)
+        void UpdateCurrentTextBoxFromDataObject(IDataObject dataObject)
         {
             var result = "";
             var formats = dataObject.GetFormats();
-            var containsText = false;
             if (formats.Any())
             {
                 if (formats.Contains("UnicodeText"))
                 {
                     result = (string)dataObject.GetData("UnicodeText");
-                    containsText = true;
                 }
                 else if (formats.Contains("Text"))
                 {
                     result = (string)dataObject.GetData("Text");
-                    containsText = true;
                 }
                 else
                 {
@@ -254,33 +251,27 @@ namespace ClipboardSensor
                 }
             }
 
-            if (playSound)
-            {
-                if (String.IsNullOrEmpty(result))
-                {
-                    PlayIfNotMuted(bumpwav);
-                }
-                else if (result == "Chromium internal source RFH token, Chromium internal source URL")
-                {
-                    PlayIfNotMuted(bumpwav);
-                }
-                else if (containsText)
-                {
-                    PlayIfNotMuted(switchwav);
-                }
-                else
-                {
-                    PlayIfNotMuted(switch2wav);
-                }
-            }
             CurrentTextBox.Text = result;
             lastRead = time.ElapsedMilliseconds;
         }
 
-        DataObject Clone(IDataObject other)
+        DataObject CloneAndPlaySFX(IDataObject other)
         {
             var clone = new DataObject();
-            var formats = other.GetFormats();
+            var formats = other.GetFormats().ToList();
+            //move Text and UnicodeText to the front so we check them first
+            if (formats.Contains("Text"))
+            {
+                formats.Remove("Text");
+                formats.Insert(0, "Text");
+            }
+            if (formats.Contains("UnicodeText"))
+            {
+                formats.Remove("UnicodeText");
+                formats.Insert(0, "UnicodeText");
+            }
+            var beeped = false;
+
             foreach (var format in formats)
             {
                 //anti-flakiness here too...
@@ -301,6 +292,16 @@ namespace ClipboardSensor
                             }
                             else
                             {
+                                if (!beeped && (format == "UnicodeText" || format == "Text") && check is string stringy3 && !String.IsNullOrEmpty(stringy3))
+                                {
+                                    beeped = true;
+                                    PlayIfNotMuted(switchwav);
+                                }
+                                else if (!beeped && format != "Chromium internal source RFH token" && format != "Chromium internal source URL")
+                                {
+                                    beeped = true;
+                                    PlayIfNotMuted(switch2wav);
+                                }
                                 break;
                             }
                         }
@@ -310,6 +311,10 @@ namespace ClipboardSensor
                     }
                     Thread.Sleep((int)Math.Pow(10, i - 1)); //0, 1, 10, 100
                 }
+            }
+            if (!beeped)
+            {
+                PlayIfNotMuted(bumpwav);
             }
             return clone;
         }
@@ -382,7 +387,7 @@ namespace ClipboardSensor
             var dataObject = ClipboardGetDataObjectWrapper();
             if (dataObject != null)
             {
-                var clone = Clone(dataObject);
+                var clone = CloneAndPlaySFX(dataObject);
                 //if not debounced...
                 if (time.ElapsedMilliseconds - lastRead > debounceMs)
                 {
@@ -396,7 +401,7 @@ namespace ClipboardSensor
                     //else, rewrite current entry
                     history[currentPosition] = clone;
                 }
-                UpdateCurrentTextBoxFromDataObject(clone, true);
+                UpdateCurrentTextBoxFromDataObject(clone);
             }
         }
 
@@ -463,7 +468,7 @@ namespace ClipboardSensor
             //now we know it succeeded so continue
             ProgrammaticallySetCurrentPosition(value);
             //crazy COM stack overflow if I just immediately try to read it for some reason, so we'll manually unpack it here
-            UpdateCurrentTextBoxFromDataObject(history[currentPosition], false);
+            UpdateCurrentTextBoxFromDataObject(history[currentPosition]);
         }
 
         bool programmaticallySettingCurrentPositionBoxValue = false;
@@ -548,7 +553,7 @@ namespace ClipboardSensor
                 PlayIfNotMuted(bumpwav, true);
                 return;
             }
-            UpdateCurrentTextBoxFromDataObject(clone, false);
+            UpdateCurrentTextBoxFromDataObject(clone);
             PlayIfNotMuted(switchwav, true);
         }
 

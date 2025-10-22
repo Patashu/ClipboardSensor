@@ -176,7 +176,7 @@
             Controls.Add(CurrentTextBox);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "ClipboardSensorForm";
-            Text = "ClipboardSensor v1.2";
+            Text = "ClipboardSensor v1.3";
             ((System.ComponentModel.ISupportInitialize)CurrentPositionBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)MaximumPositionBox).EndInit();
             ((System.ComponentModel.ISupportInitialize)DebounceNumericBox).EndInit();
