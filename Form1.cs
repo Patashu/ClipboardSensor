@@ -135,6 +135,7 @@ namespace ClipboardSensor
                 AddClipboardFormatListener(this.Handle);
                 RegisterHotkeys();
                 HotKeyManager.HotKeyPressed += OnHotKeyPressed;
+                HandleClipboard();
             };
             ResourceManager rm = Resources.ResourceManager;
             //not going to fix the potential NREs here because if it does NRE it is correct to crash~
