@@ -111,15 +111,18 @@ namespace ClipboardSensor
         System.Media.SoundPlayer bumpwav = new System.Media.SoundPlayer();
         System.Media.SoundPlayer undowav = new System.Media.SoundPlayer();
         System.Media.SoundPlayer redowav = new System.Media.SoundPlayer();
+        System.Media.SoundPlayer undostrongwav = new System.Media.SoundPlayer();
         int debounceMs = 100; //in milliseconds
         Stopwatch time = new Stopwatch();
         long lastRead = -9999; //in ElapsedMilliseconds
         long lastWrite = -9999; //in ElapsedMilliseconds
+        long lastBeep = -9999; //in ElapsedMilliseconds
         bool settingDataObject = false;
         List<IDataObject> history = new List<IDataObject>();
         int currentPosition = -1; //zero indexed
         int maxHistorySize = 32; //inclusive
         const int muteAfterWriteMs = 100; //in milliseconds
+        const int playSoundToIndicateClipboardReadFinished = 100; //in milliseconds
         List<int> registeredHotkeys = new List<int>();
 
         public ClipboardSensorForm()
@@ -140,6 +143,7 @@ namespace ClipboardSensor
             bumpwav.Stream = (Stream)rm.GetObject("bump");
             undowav.Stream = (Stream)rm.GetObject("undo");
             redowav.Stream = (Stream)rm.GetObject("redo");
+            undostrongwav.Stream = (Stream)rm.GetObject("undostrong");
             DebounceNumericBox.Value = debounceMs;
             time.Start();
         }
@@ -229,6 +233,7 @@ namespace ClipboardSensor
                 return;
             }
             speaker.Play();
+            lastBeep = time.ElapsedMilliseconds;
         }
 
         void UpdateCurrentTextBoxFromDataObject(IDataObject dataObject)
@@ -319,6 +324,10 @@ namespace ClipboardSensor
             if (!beeped)
             {
                 PlayIfNotMuted(bumpwav);
+            }
+            if (time.ElapsedMilliseconds - lastBeep > playSoundToIndicateClipboardReadFinished)
+            {
+                PlayIfNotMuted(undostrongwav);
             }
             return clone;
         }

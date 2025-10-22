@@ -104,5 +104,14 @@ namespace ClipboardSensor.Properties {
                 return ResourceManager.GetStream("undo", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream undostrong {
+            get {
+                return ResourceManager.GetStream("undostrong", resourceCulture);
+            }
+        }
     }
 }
