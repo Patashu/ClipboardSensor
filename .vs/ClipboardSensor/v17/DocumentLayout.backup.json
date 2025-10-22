@@ -48,7 +48,7 @@
               "RelativeDocumentMoniker": "Form1.cs",
               "ToolTip": "E:\\Users\\tim\\Documents\\Godot Projects\\ClipboardSensor\\Form1.cs",
               "RelativeToolTip": "Form1.cs",
-              "ViewState": "AgIAAAMBAAAAAAAAAAAQwCIBAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAC0BAAAAAAAAAAAIwEYBAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-30T06:36:27.543Z",
               "IsPinned": true,
@@ -64,8 +64,7 @@
               "RelativeToolTip": "Form1.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-30T06:27:28.683Z",
-              "IsPinned": true,
-              "EditorCaption": " [Design]"
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -75,11 +74,10 @@
               "RelativeDocumentMoniker": "Form1.Designer.cs",
               "ToolTip": "E:\\Users\\tim\\Documents\\Godot Projects\\ClipboardSensor\\Form1.Designer.cs",
               "RelativeToolTip": "Form1.Designer.cs",
-              "ViewState": "AgIAAKAAAAAAAAAAAAAIwLIAAAAqAAAAAAAAAA==",
+              "ViewState": "AgIAAKEAAAAAAAAAAAAIwL4AAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-19T06:22:14.881Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Bookmark",
@@ -127,8 +125,7 @@
               "RelativeToolTip": "Properties\\Resources.resx",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001005|",
-              "WhenOpened": "2025-09-30T06:01:04.221Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-30T06:01:04.221Z"
             },
             {
               "$type": "Document",
