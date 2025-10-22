@@ -262,74 +262,86 @@ namespace ClipboardSensor
 
         DataObject CloneAndPlaySFX(IDataObject other)
         {
-            var clone = new DataObject();
-            var formats = other.GetFormats().ToList();
-            //move Text and UnicodeText to the front so we check them first
-            if (formats.Contains("Text"))
+            try
             {
-                formats.Remove("Text");
-                formats.Insert(0, "Text");
-            }
-            if (formats.Contains("UnicodeText"))
-            {
-                formats.Remove("UnicodeText");
-                formats.Insert(0, "UnicodeText");
-            }
-            if (formats.Contains("EnterpriseDataProtectionId"))
-            {
-                formats.Remove("EnterpriseDataProtectionId");
-            }
-            var beeped = false;
+                settingDataObject = true;
+                CurrentTextBox.Enabled = false;
+                Application.DoEvents();
 
-            foreach (var format in formats)
-            {
-                //anti-flakiness here too...
-                for (var i = 0; i < 4; ++i)
+                var clone = new DataObject();
+                var formats = other.GetFormats().ToList();
+                //move Text and UnicodeText to the front so we check them first
+                if (formats.Contains("Text"))
                 {
-                    try
+                    formats.Remove("Text");
+                    formats.Insert(0, "Text");
+                }
+                if (formats.Contains("UnicodeText"))
+                {
+                    formats.Remove("UnicodeText");
+                    formats.Insert(0, "UnicodeText");
+                }
+                if (formats.Contains("EnterpriseDataProtectionId"))
+                {
+                    formats.Remove("EnterpriseDataProtectionId");
+                }
+                var beeped = false;
+
+                foreach (var format in formats)
+                {
+                    //anti-flakiness here too...
+                    for (var i = 0; i < 4; ++i)
                     {
-                        var data = other.GetData(format);
-                        if (data == null || data is string stringy && String.IsNullOrEmpty(stringy))
+                        try
                         {
-                        }
-                        else
-                        {
-                            clone.SetData(format, data);
-                            var check = clone.GetData(format);
-                            if (check == null || check is string stringy2 && String.IsNullOrEmpty(stringy2))
+                            var data = other.GetData(format);
+                            if (data == null || data is string stringy && String.IsNullOrEmpty(stringy))
                             {
                             }
                             else
                             {
-                                if (!beeped && (format == "UnicodeText" || format == "Text") && check is string stringy3 && !String.IsNullOrEmpty(stringy3))
+                                clone.SetData(format, data);
+                                var check = clone.GetData(format);
+                                if (check == null || check is string stringy2 && String.IsNullOrEmpty(stringy2))
                                 {
-                                    beeped = true;
-                                    PlayIfNotMuted(switchwav);
                                 }
-                                else if (!beeped && format != "Chromium internal source RFH token" && format != "Chromium internal source URL")
+                                else
                                 {
-                                    beeped = true;
-                                    PlayIfNotMuted(switch2wav);
+                                    if (!beeped && (format == "UnicodeText" || format == "Text") && check is string stringy3 && !String.IsNullOrEmpty(stringy3))
+                                    {
+                                        beeped = true;
+                                        PlayIfNotMuted(switchwav);
+                                    }
+                                    else if (!beeped && format != "Chromium internal source RFH token" && format != "Chromium internal source URL")
+                                    {
+                                        beeped = true;
+                                        PlayIfNotMuted(switch2wav);
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
+                        catch (ExternalException)
+                        {
+                        }
+                        Thread.Sleep((int)Math.Pow(10, i - 1)); //0, 1, 10, 100
                     }
-                    catch (ExternalException)
-                    {
-                    }
-                    Thread.Sleep((int)Math.Pow(10, i - 1)); //0, 1, 10, 100
                 }
+                if (!beeped)
+                {
+                    PlayIfNotMuted(bumpwav);
+                }
+                if (time.ElapsedMilliseconds - lastBeep > playSoundToIndicateClipboardReadFinished)
+                {
+                    PlayIfNotMuted(undostrongwav);
+                }
+                return clone;
             }
-            if (!beeped)
+            finally
             {
-                PlayIfNotMuted(bumpwav);
+                settingDataObject = false;
+                CurrentTextBox.Enabled = true;
             }
-            if (time.ElapsedMilliseconds - lastBeep > playSoundToIndicateClipboardReadFinished)
-            {
-                PlayIfNotMuted(undostrongwav);
-            }
-            return clone;
         }
 
         IDataObject? ClipboardGetDataObjectWrapper()
