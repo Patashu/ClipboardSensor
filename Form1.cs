@@ -285,7 +285,7 @@ namespace ClipboardSensor
                         }
                         else
                         {
-                            clone.SetData(format, other.GetData(format));
+                            clone.SetData(format, data);
                             var check = clone.GetData(format);
                             if (check == null || check is string stringy2 && String.IsNullOrEmpty(stringy2))
                             {
