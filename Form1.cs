@@ -4,6 +4,7 @@ using System.Media;
 using System.Resources;
 using System.Runtime.InteropServices;
 using ClipboardSensor.Properties;
+using FireAndForgetAudioSample;
 
 namespace ClipboardSensor
 {
@@ -106,13 +107,13 @@ namespace ClipboardSensor
         [DllImport("ole32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         static extern int OleFlushClipboard();
 
-        System.Media.SoundPlayer switchwav = new System.Media.SoundPlayer();
-        System.Media.SoundPlayer switch2wav = new System.Media.SoundPlayer();
-        System.Media.SoundPlayer bumpwav = new System.Media.SoundPlayer();
-        System.Media.SoundPlayer undowav = new System.Media.SoundPlayer();
-        System.Media.SoundPlayer redowav = new System.Media.SoundPlayer();
-        System.Media.SoundPlayer undostrongwav = new System.Media.SoundPlayer();
-        int debounceMs = 100; //in milliseconds
+        CachedSound switchwav = new CachedSound("switch.wav");
+        CachedSound switch2wav = new CachedSound("switch2.wav");
+		CachedSound bumpwav = new CachedSound("bump.wav");
+		CachedSound undowav = new CachedSound("undo.wav");
+		CachedSound redowav = new CachedSound("redo.wav");
+		CachedSound undostrongwav = new CachedSound("undostrong.wav");
+		int debounceMs = 100; //in milliseconds
         Stopwatch time = new Stopwatch();
         long lastRead = -9999; //in ElapsedMilliseconds
         long lastWrite = -9999; //in ElapsedMilliseconds
@@ -137,14 +138,6 @@ namespace ClipboardSensor
                 HotKeyManager.HotKeyPressed += OnHotKeyPressed;
                 HandleClipboard();
             };
-            ResourceManager rm = Resources.ResourceManager;
-            //not going to fix the potential NREs here because if it does NRE it is correct to crash~
-            switchwav.Stream = (Stream)rm.GetObject("switch");
-            switch2wav.Stream = (Stream)rm.GetObject("switch2");
-            bumpwav.Stream = (Stream)rm.GetObject("bump");
-            undowav.Stream = (Stream)rm.GetObject("undo");
-            redowav.Stream = (Stream)rm.GetObject("redo");
-            undostrongwav.Stream = (Stream)rm.GetObject("undostrong");
             DebounceNumericBox.Value = debounceMs;
             time.Start();
         }
@@ -226,15 +219,15 @@ namespace ClipboardSensor
             ProgrammaticallySetMaximumPositionBox(history.Count);
         }
 
-        void PlayIfNotMuted(SoundPlayer speaker, bool userInitiated = false)
+        void PlayIfNotMuted(CachedSound cachedSound, bool userInitiated = false)
         {
             //don't play non-user initiated sounds if we wrote within the last muteAfterWriteMs ms
             if (!userInitiated && time.ElapsedMilliseconds - lastWrite < muteAfterWriteMs)
             {
                 return;
             }
-            speaker.Play();
-            lastBeep = time.ElapsedMilliseconds;
+            AudioPlaybackEngine.Instance.PlaySound(cachedSound);
+			lastBeep = time.ElapsedMilliseconds;
         }
 
         void UpdateCurrentTextBoxFromDataObject(IDataObject dataObject)
